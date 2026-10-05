@@ -7,7 +7,7 @@ const WORDS_BANK = ["A", "AA", "AAA", "AAB", "AB", "ABA", "ABB", "B", "BA", "BAA
 
 const WORD_PICKS = 7;
 
-function judgeWords(picks) {
+export function judgeWords(picks) {
   const maxL = Math.max(...picks.map(w => w.length));
   const waiting = WORDS_BANK.filter(w => !picks.includes(w) && w.length < maxL);
   if (!waiting.length) return { ok: true };

@@ -1,5 +1,5 @@
-# Builds the game and publishes it to GitHub Pages on every push to main.
-# Pull requests get the build step only, so a broken change shows up before it's merged.
+# Tests and builds the game, and publishes it to GitHub Pages on every push to main.
+# Pull requests get the tests and the build only, so a broken change shows up before it's merged.
 name: Build and deploy
 
 on:
@@ -13,6 +13,20 @@ permissions:
   contents: read
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      # Builds the site, serves it, and plays through every screen in Chromium.
+      - run: npm run test:e2e
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -31,7 +45,7 @@ jobs:
 
   deploy:
     if: github.event_name != 'pull_request'
-    needs: build
+    needs: [test, build]
     runs-on: ubuntu-latest
     permissions:
       pages: write

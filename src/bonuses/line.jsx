@@ -12,17 +12,30 @@ export function BonusLine({ onExit, onFinish }) {
   const P = { x: C.x - R * Math.cos(th), y: C.y + R * Math.sin(th) };
   const v = -2 / Math.tan(th);                       // line coordinate: 50px per unit
   const hitX = C.x + 50 * v;
+  const vText = (Math.abs(v) < 0.005 ? 0 : v).toFixed(2);   // no "-0.00" straight below the light
   const onScreen = hitX >= 8 && hitX <= 632;
   const k = onScreen ? (LY - C.y) / (P.y - C.y) : 312 / Math.abs(P.x - C.x);
   const E = { x: C.x + (P.x - C.x) * k, y: C.y + (P.y - C.y) * k };
   function setFrom(e) {
     const r = svgRef.current.getBoundingClientRect();
     const x = (e.clientX - r.left) * 640 / r.width, y = (e.clientY - r.top) * 250 / r.height;
-    let t = Math.atan2(Math.max(y - C.y, 0.001), -(x - C.x));
+    moveTo(Math.atan2(Math.max(y - C.y, 0.001), -(x - C.x)));
+  }
+  function moveTo(t) {
     t = Math.min(Math.PI - 0.012, Math.max(0.012, t));
     setTh(t);
     const val = -2 / Math.tan(t);
     setFound(f => ({ far: f.far || val > 10, neg: f.neg || val < -10, zero: f.zero || Math.abs(val) < 0.05 }));
+  }
+  // Keyboard: the arc works as a slider. Steps are 1/200 of the arc, so step 100 lands exactly on 0 below the light.
+  // Steps 0 and 200 are the endpoints, which have no partner, so the keys stop one step short of them.
+  function onKey(e) {
+    const step = Math.PI / 200, at = Math.round(th / step);
+    const to = { ArrowRight: at + 1, ArrowUp: at + 1, ArrowLeft: at - 1, ArrowDown: at - 1,
+                 PageUp: at + 10, PageDown: at - 10, Home: 1, End: 199 }[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    moveTo(Math.min(199, Math.max(1, to)) * step);
   }
   const missions = found.far && found.neg && found.zero;
   return (
@@ -33,8 +46,10 @@ export function BonusLine({ onExit, onFinish }) {
         <svg ref={svgRef} viewBox="0 0 640 250" width="100%" style={{ touchAction: "none", cursor: "grab" }}
              onPointerDown={e => { dragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); setFrom(e); }}
              onPointerMove={e => dragging.current && setFrom(e)} onPointerUp={() => { dragging.current = false; }}
-             onPointerCancel={() => { dragging.current = false; }}
-             role="img" aria-label="Half circle above a number line, with a ray from the centre through a point on the arc">
+             onPointerCancel={() => { dragging.current = false; }} onKeyDown={onKey} tabIndex={0}
+             role="slider" aria-label="Point on the half-circle. Use the arrow keys to move it along the arc."
+             aria-valuemin={0} aria-valuemax={200} aria-valuenow={Math.round(th / Math.PI * 200)}
+             aria-valuetext={`${(th / Math.PI).toFixed(3)} of the way along the arc; its partner on the line is ${vText}`}>
           <line x1="0" y1={LY} x2="640" y2={LY} stroke="var(--muted)" strokeWidth="3" />
           {[-6, -4, -2, 0, 2, 4, 6].map(n => (
             <g key={n}><line x1={C.x + 50 * n} y1={LY - 5} x2={C.x + 50 * n} y2={LY + 5} stroke="var(--muted)" strokeWidth="2" />
@@ -51,7 +66,7 @@ export function BonusLine({ onExit, onFinish }) {
           {!onScreen && <text x={hitX < 0 ? 12 : 628} y={E.y - 10} textAnchor={hitX < 0 ? "start" : "end"} fontSize="14" fontWeight="800" fill="var(--coral)">
             {hitX < 0 ? "← off the screen" : "off the screen →"}</text>}
         </svg>
-        <p className="grid-note">Drag the teal point along the half-circle. It is {(th / Math.PI).toFixed(3)} of the way along, and its partner on the line is <b>{v.toFixed(2)}</b>.</p>
+        <p className="grid-note">Drag the teal point along the half-circle, or select it and use the arrow keys. It is {(th / Math.PI).toFixed(3)} of the way along, and its partner on the line is <b>{vText}</b>.</p>
       </div>
       <ul className="missions">
         <li className={found.far ? "ok" : ""}>Reach a line point past 10</li>

@@ -36,7 +36,7 @@ export function stepIdAt(chapterId, i) {
 
 // Rebuild whatever is stored into a well-formed save. Anything malformed is dropped rather than trusted,
 // so a damaged save can lose a field but can never crash the game.
-function normalizeSave(raw) {
+export function normalizeSave(raw) {
   const out = freshSave();
   if (!isObj(raw)) return out;
   const v1 = !Number.isInteger(raw.version) || raw.version < 2;   // v1 stored step positions as numbers
