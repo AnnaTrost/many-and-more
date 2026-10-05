@@ -21,10 +21,13 @@ const makeStreet = () => range(VIS).map(i => {
 const EAST_VISIBLE = 6, WEST_VISIBLE = 5;   // houses 1…6 and −1…−5 are on screen
 
 function judgeOrder(order) {
-  let eNext = 1, wNext = -1, skipped = null;
-  for (const h of order) {
-    if (h > 0) { if (h !== eNext && skipped === null) skipped = eNext; eNext = Math.max(eNext, h + 1); }
-    else if (h < 0) { if (h !== wNext && skipped === null) skipped = wNext; wNext = Math.min(wNext, h - 1); }
+  const eNext = Math.max(0, ...order) + 1, wNext = Math.min(0, ...order) - 1;
+  // A house is skipped if it's still waiting while someone further out on its side already has a room.
+  // Report the one nearest the square; sending houses out of order is fine as long as nobody is left behind.
+  let skipped = null;
+  for (let d = 1; d < Math.max(eNext, -wNext); d++) {
+    if (d < eNext && !order.includes(d)) { skipped = d; break; }
+    if (-d > wNext && !order.includes(-d)) { skipped = -d; break; }
   }
   const east = order.some(h => h > 0), west = order.some(h => h < 0), zero = order.includes(0);
   const base = { eNext, wNext, zero, len: order.length };
@@ -92,7 +95,7 @@ function StreetDrag({ onNext }) {
       <p>Back in town, a street runs out from the square in both directions. House 0 sits on the square. Houses 1, 2, 3, … run east,
          and houses −1, −2, −3, … run west, forever both ways. A storm is coming, and every household needs a room at Mira's hotel,
          which happens to be empty tonight.</p>
-      <Hotel guests={guests} arrivingMore place="street" onSend={done ? null : send} nextRoom={done ? null : order.length + 1} />
+      <Hotel guests={guests} arrivingMore place="street" onSend={done ? null : send} sendLabel={g => `Send house ${g.label} to the next room`} nextRoom={done ? null : order.length + 1} />
       {!done && (
         <Say who="Mira">Drag people into the hotel. The first one you send gets room 1, the next gets room 2, and so on.
           Send people in a pattern I can keep repeating forever, so that every house on this endless street eventually gets a room. I'll fast-forward your plan once I see the pattern.</Say>

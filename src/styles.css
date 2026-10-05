@@ -259,6 +259,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .slot-btn { opacity: 0; font-size: .75rem; font-weight: 800; color: var(--violet); background: transparent; border: 0; padding: 0 .5rem; height: 100%; }
 .slot:hover, .slot:focus-within, .slot.open { height: 1.7rem; outline: 2px dashed var(--violet); }
 .slot:hover .slot-btn, .slot:focus-within .slot-btn, .slot.open .slot-btn { opacity: 1; }
+.slot.open .slot-btn { width: 100%; }   /* the whole gap is the tap target */
 .slot.over { background: color-mix(in srgb, var(--violet) 25%, transparent); }
 .claims.done li::before { content: "✓ "; color: var(--good-ink); }
 
@@ -395,6 +396,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  .draw { stroke-dashoffset: 0; }
   .confetti { display: none; }
 }
 

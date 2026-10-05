@@ -15,7 +15,7 @@ function Frac({ p, q, small }) {
 function FracGrid({ marks, onTap, tint, disabled, note }) {
   return (
     <div className="grid-wrap">
-      <div className="fgrid" role="grid" aria-label="Fractions laid out by top and bottom number">
+      <div className="fgrid" role="group" aria-label="Fractions laid out by top and bottom number">
         <span className="corner">top ↓ bottom →</span>
         {range(GRID_N).map(q => <span key={"h" + q} className="ghead">{q + 1}</span>)}
         <span className="ghead fade">…</span>
@@ -54,7 +54,6 @@ function Dense({ onNext }) {
   const [made, setMade] = useState([]);
   const [pick, setPick] = useState(null);
   const val = f => f[0] / f[1];
-  const right = M || R;
   function squeeze() {
     const base = M || R;
     if (M) setR(M);
@@ -70,7 +69,7 @@ function Dense({ onNext }) {
       <div className="figure dense">
         <div className="dline">
           <span className="dmark" style={{ left: "8%" }}><Frac p={L[0]} q={L[1]} /></span>
-          <span className="dmark" style={{ left: "92%" }}><Frac p={(M ? R : right)[0]} q={(M ? R : right)[1]} /></span>
+          <span className="dmark" style={{ left: "92%" }}><Frac p={R[0]} q={R[1]} /></span>
           {M && <span key={M.join("/")} className="dmark new" style={{ left: pos + "%" }}><Frac p={M[0]} q={M[1]} /></span>}
         </div>
         <p className="grid-note">{made.length === 0 ? "Tap to squeeze a fraction into the gap." : `Fractions squeezed in so far: ${made.length}. Each time, the view zooms into the new, smaller gap.`}</p>

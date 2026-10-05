@@ -12,7 +12,7 @@ const CATALOGUES = [
 
 export function BonusCatalogue({ onExit, onFinish }) {
   const [marks, setMarks] = useState([]);
-  const [phase, setPhase] = useState("sort");      // sort, rebel, end
+  const [phase, setPhase] = useState("sort");      // sort, rebel
   const [err, setErr] = useState(null);
   const [tried, setTried] = useState([]);
   const [pick, setPick] = useState(null);
