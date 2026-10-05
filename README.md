@@ -33,6 +33,7 @@ The build uses relative paths (`base: "./"` in `vite.config.js`), so the same `d
 | `src/save.js` | Saved progress: format, migration and validation |
 | `src/ErrorBoundary.jsx` | Crash screen shown instead of a blank page |
 | `src/styles.css` | All styles, with light and dark themes |
+| `public/` | Files copied into the site unchanged: the tab icon (`favicon.svg`) and the phone home-screen icon (`apple-touch-icon.png`) |
 
 ### Adding a chapter
 
