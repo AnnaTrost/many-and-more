@@ -7,7 +7,7 @@ const SEQ_N = 16;
 
 const SEQ_TARGETS = [[2, 0, 3], [0, 0, 0, 5], [3, 1, 4]];
 
-function decodeSwitches(s) {
+export function decodeSwitches(s) {
   const out = []; let c = 0;
   for (const b of s) { if (b) c++; else { out.push(c); c = 0; } }
   return { nums: out, open: c };

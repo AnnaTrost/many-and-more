@@ -20,7 +20,7 @@ const makeStreet = () => range(VIS).map(i => {
 // House 0 is the square: it belongs to neither side, and only has to be sent at some point.
 const EAST_VISIBLE = 6, WEST_VISIBLE = 5;   // houses 1…6 and −1…−5 are on screen
 
-function judgeOrder(order) {
+export function judgeOrder(order) {
   const eNext = Math.max(0, ...order) + 1, wNext = Math.min(0, ...order) - 1;
   // A house is skipped if it's still waiting while someone further out on its side already has a room.
   // Report the one nearest the square; sending houses out of order is fine as long as nobody is left behind.

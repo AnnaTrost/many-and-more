@@ -101,7 +101,7 @@ function Dense({ onNext }) {
   );
 }
 
-function zigOrder(maxSum) {
+export function zigOrder(maxSum) {
   const out = [];
   for (let s = 2; s <= maxSum; s++) {
     const ps = range(s - 1).map(i => i + 1);
@@ -119,7 +119,7 @@ const STRATS = {
          msg: "Each diagonal is short, so the walk always finishes it and moves on. Pick any cell, and the walk reaches it after finitely many steps." },
 };
 
-function markOrder(order, upto) {
+export function markOrder(order, upto) {
   const marks = {}; let n = 0;
   order.slice(0, upto).forEach(([p, q], i) => {
     const dup = gcd(p, q) > 1;

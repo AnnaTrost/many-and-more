@@ -19,7 +19,7 @@ function factor(n) {
   return f;
 }
 
-function whoIsIn(n) {
+export function whoIsIn(n) {
   if (n === 1) return { kind: "empty", why: "1 isn't a power of any prime, so nobody is sent here." };
   const f = factor(n), p = f[0], k = f.length;
   const expr = Object.entries(f.reduce((a, x) => ({ ...a, [x]: (a[x] || 0) + 1 }), {}))
