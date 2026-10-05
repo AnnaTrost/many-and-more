@@ -42,7 +42,7 @@ function Person({ g }) {
   );
 }
 
-export function Hotel({ guests, arrivingMore, place = "lobby", nextRoom, onSend }) {
+export function Hotel({ guests, arrivingMore, place = "lobby", nextRoom, onSend, sendLabel = g => `Send ${g.label} to the next room` }) {
   const occ = new Set(guests.filter(g => g.row === "room").map(g => g.col));
   const count = {}, stack = {};
   guests.forEach(g => { if (g.row === "room") { stack[g.id] = count[g.col] || 0; count[g.col] = (count[g.col] || 0) + 1; } });
@@ -76,7 +76,7 @@ export function Hotel({ guests, arrivingMore, place = "lobby", nextRoom, onSend 
               <button key={g.id} className="guest grab" style={style}
                       onPointerDown={e => down(e, g)}
                       onClick={() => { if (!suppress.current) onSend(g); }}
-                      aria-label={`Send house ${g.label} to the next room`}>
+                      aria-label={sendLabel(g)}>
                 <Person g={g} />
               </button>
             );

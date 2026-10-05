@@ -185,7 +185,7 @@ function CompareStep({ step, onNext }) {
           <div className="choices">
             {[...ANSWERS, { id: "cant", label: "We can't tell by counting" }].map(a => (
               <button key={a.id} className={"btn secondary" + (wrong.includes(a.id) ? " picked-wrong" : "")}
-                      onClick={() => a.id === "cant" ? setPhase("pair") : setWrong(w => [...w, a.id])}>{a.label}</button>
+                      onClick={() => { if (a.id === "cant") { setWrong([]); setPhase("pair"); } else setWrong(w => [...w, a.id]); }}>{a.label}</button>
             ))}
           </div>
           {wrong.length > 0 && <div className="feedback bad"><p>How would the tribe know that? Both words came out as "many", and "many" isn't bigger than "many".</p></div>}

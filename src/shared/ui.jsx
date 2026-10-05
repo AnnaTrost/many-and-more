@@ -24,7 +24,7 @@ export function ChapterShell({ steps, step, onExit, reach = 0, onJump, children 
     <>
       <div className="topbar">
         <button className="linkish" onClick={onExit}>Back to chapters</button>
-        <div className="progress" aria-label={`Step ${step + 1} of ${steps.length}`}>
+        <div className="progress" role="group" aria-label={`Step ${step + 1} of ${steps.length}`}>
           {steps.map((_, i) => (
             <button key={i} className={"dot" + (i < step ? " on" : i === step ? " now" : i <= reach ? " seen" : "")}
                     disabled={i > reach || i === step || !onJump} onClick={() => onJump(i)}

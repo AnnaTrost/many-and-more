@@ -149,7 +149,7 @@ function SquareToy() {
       <div className="square" ref={ref}
            onPointerDown={e => { dragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); setFrom(e); }}
            onPointerMove={e => dragging.current && setFrom(e)}
-           onPointerUp={() => { dragging.current = false; }}
+           onPointerUp={() => { dragging.current = false; }} onPointerCancel={() => { dragging.current = false; }}
            role="img" aria-label="Unit square: drag the point">
         <span className="sqdot" style={{ left: pt.x * 100 + "%", top: (1 - pt.y) * 100 + "%" }} />
         <span className="sqlabel">drag me</span>
@@ -170,19 +170,28 @@ function Zipper({ onNext }) {
   const [pick, setPick] = useState(null);
   const done = placed.length === 12;
   const used = (row, i) => placed.some(p => p.row === row && p.i === i);
+  const tileEls = useRef({});
   function place(tile) {
-    if (done || used(tile.row, tile.i)) return;
+    if (done || used(tile.row, tile.i)) return false;
     const k = placed.length, wantRow = k % 2 ? "y" : "x", wantI = Math.floor(k / 2);
-    if (tile.row !== wantRow) { setMsg({ text: `A zipper alternates. Digit ${k + 1} of the zipped number comes from ${wantRow}.`, warn: true }); return; }
-    if (tile.i !== wantI) { setMsg({ text: `Keep ${wantRow}'s digits in order: next up is its digit ${wantI + 1}.`, warn: true }); return; }
+    if (tile.row !== wantRow) { setMsg({ text: `A zipper alternates. Digit ${k + 1} of the zipped number comes from ${wantRow}.`, warn: true }); return false; }
+    if (tile.i !== wantI) { setMsg({ text: `Keep ${wantRow}'s digits in order: next up is its digit ${wantI + 1}.`, warn: true }); return false; }
     setPlaced(p => [...p, tile]); setMsg({ text: "", warn: false });
+    return true;
+  }
+  // The placed tile is about to be disabled, which would drop focus: hand it to the next digit in the zipper instead.
+  function tapTile(row, i) {
+    if (suppress.current || !place({ row, i })) return;
+    const k = placed.length + 1, next = tileEls.current[(k % 2 ? "y" : "x") + Math.floor(k / 2)];
+    if (next) next.focus();
   }
   const { drag, over, down, suppress } = useDrag((t, strip) => { if (strip !== null) place(t); }, "data-zip");
-  const Tile = ({ row, i }) => {
+  // A render function, not a component: a component defined in here would remount every tile on each render and drop keyboard focus.
+  const tile = (row, i) => {
     const d = row === "x" ? ZX[i] : ZY[i], u = used(row, i);
     return (
-      <button className={"ztile " + row + (u ? " used" : "")} disabled={u || done}
-              onPointerDown={e => down(e, { row, i })} onClick={() => { if (!suppress.current) place({ row, i }); }}
+      <button key={i} ref={el => { tileEls.current[row + i] = el; }} className={"ztile " + row + (u ? " used" : "")} disabled={u || done}
+              onPointerDown={e => down(e, { row, i })} onClick={() => tapTile(row, i)}
               aria-label={`Digit ${i + 1} of ${row}: ${d}`}>{d}</button>
     );
   };
@@ -194,8 +203,8 @@ function Zipper({ onNext }) {
          Cantor found a way to pack any two numbers into one, so that you can always unpack them again.</p>
       <Say who="Mira">Zip x and y together like the teeth of a zipper: one digit from x, then one from y, then the next from x… Drag the digits onto the zipped number, or tap them.</Say>
       <div className="zrows">
-        <div className="zrow"><span className="zlab zx">x = 0.</span>{ZX.map((_, i) => <Tile key={i} row="x" i={i} />)}<span className="fade">…</span></div>
-        <div className="zrow"><span className="zlab zy">y = 0.</span>{ZY.map((_, i) => <Tile key={i} row="y" i={i} />)}<span className="fade">…</span></div>
+        <div className="zrow"><span className="zlab zx">x = 0.</span>{ZX.map((_, i) => tile("x", i))}<span className="fade">…</span></div>
+        <div className="zrow"><span className="zlab zy">y = 0.</span>{ZY.map((_, i) => tile("y", i))}<span className="fade">…</span></div>
       </div>
       <div className={"zstrip" + (over !== null ? " hot" : "")} data-zip="1">
         <span className="zlab">zipped = 0.</span>
@@ -276,7 +285,7 @@ function Switches({ onNext }) {
         <span className="more-dots">…</span>
       </div>
       <div className="swread">
-        <p><b>Switches on:</b> {onSet.length ? "{" + onSet.join(", ") + (onSet.length ? ", …}" : "}") : "none"}</p>
+        <p><b>Switches on:</b> {onSet.length ? "{" + onSet.join(", ") + "}" : "none"}</p>
         <p><b>As a binary number:</b> 0.{s.join("")}… = {v.toFixed(5)}</p>
         <div className="minline big">
           <span style={{ left: v * 100 + "%" }} />
@@ -287,7 +296,7 @@ function Switches({ onNext }) {
         {target ? ` Set the switches to hit ${target.label}, marked on the line.` : ""}</Say>
       {target && (
         <div className="row">
-          <span className={"status" + (hit ? "" : "")} style={{ margin: 0 }}>Target {t + 1} of {SWITCH_TARGETS.length}: {target.label}</span>
+          <span className="status" style={{ margin: 0 }}>Target {t + 1} of {SWITCH_TARGETS.length}: {target.label}</span>
           <button className="btn" disabled={!hit} onClick={() => setT(t + 1)}>{hit ? "Got it! Next" : "Not there yet"}</button>
         </div>
       )}

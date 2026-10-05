@@ -33,6 +33,7 @@ export function BonusLine({ onExit, onFinish }) {
         <svg ref={svgRef} viewBox="0 0 640 250" width="100%" style={{ touchAction: "none", cursor: "grab" }}
              onPointerDown={e => { dragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); setFrom(e); }}
              onPointerMove={e => dragging.current && setFrom(e)} onPointerUp={() => { dragging.current = false; }}
+             onPointerCancel={() => { dragging.current = false; }}
              role="img" aria-label="Half circle above a number line, with a ray from the centre through a point on the arc">
           <line x1="0" y1={LY} x2="640" y2={LY} stroke="var(--muted)" strokeWidth="3" />
           {[-6, -4, -2, 0, 2, 4, 6].map(n => (

@@ -126,12 +126,12 @@ function DiagonalGame({ onNext }) {
   const [round, setRound] = useState(1);
   const n = rows.length;
   const mira = range(n).map(i => miraDigit(rows[i].digits[i]));
-  const miraFull = [...mira, ...Array(10 - n).fill(5)];
+  const miraFull = [...mira, ...Array(Math.max(0, rows[0].digits.length - n)).fill(5)];   // as long as the other rows, padded with 5s
 
   // Mira reads the diagonal one digit at a time.
   useEffect(() => {
     if (phase !== "diag") return;
-    if (k >= n) { later(() => setPhase("catch"), 400); return; }
+    if (k >= n) { later(() => setPhase("catch"), 1400); return; }   // long enough to read the last room's line
     const t = setTimeout(() => setK(x => x + 1), 650);
     return () => clearTimeout(t);
   }, [phase, k, n]);
@@ -161,7 +161,7 @@ function DiagonalGame({ onNext }) {
 
   const showMira = phase !== "edit";
   const slot = i => phase === "patch"
-    ? <div key={"slot" + i} className={"slot" + (drag ? " open" : "") + (overSlot === i ? " over" : "")} data-slot={i}>
+    ? <div key={"slot" + i} className={"slot open" + (overSlot === i ? " over" : "")} data-slot={i}>
         <button className="slot-btn" onClick={() => insertAt(i)} aria-label={`Put Mira's number in room ${i + 1}`}>put it here</button>
       </div>
     : null;
@@ -226,8 +226,8 @@ function DiagonalGame({ onNext }) {
       )}
       {phase === "diag" && (
         <Say who="Mira">{k === 0 ? "Watch the diagonal: digit 1 of room 1, digit 2 of room 2, and so on."
-          : k < n ? `Room ${k} has a ${rows[k - 1].digits[k - 1]} in position ${k}, so I'll write a ${mira[k - 1]} there. Mine differs from room ${k}.`
-          : "Done. And I'd keep going forever, one room at a time."}</Say>
+          : `Room ${k} has a ${rows[k - 1].digits[k - 1]} in position ${k}, so I'll write a ${mira[k - 1]} there. Mine differs from room ${k}.`
+            + (k >= n ? " And I'd keep going like this forever, one room at a time." : "")}</Say>
       )}
       {phase === "catch" && !allChecked && (
         <>
@@ -289,7 +289,7 @@ function DiagReveal({ onFinish, hunch }) {
       <h3>One last check</h3>
       <Say who="Mira">Someone tries my trick on your list of fractions from chapter 4. Why doesn't it prove fractions are uncountable too?</Say>
       <div className="choices">
-        {[["notfrac", "Mira's new number usually isn't a fraction, so a list of fractions is allowed to miss it"],
+        {[["notfrac", "Mira's new number can't be a fraction, so a list of fractions is allowed to miss it"],
           ["works", "It does prove that, chapter 4 was wrong"],
           ["short", "Fraction decimals are too short for the diagonal"]].map(([id, label]) => (
           <button key={id} className={"btn secondary" + (picked && picked !== "notfrac" && picked === id ? " picked-wrong" : "")}
@@ -301,7 +301,7 @@ function DiagReveal({ onFinish, hunch }) {
       {picked === "notfrac" && (
         <>
           <Confetti />
-          <div className="feedback good"><p>Exactly. The diagonal number never settles into a repeating pattern, so it isn't a fraction, and a list of fractions never claimed to include it.
+          <div className="feedback good"><p>Exactly. The list already holds every fraction, and the diagonal number differs from all of them, so it can't be a fraction. A list of fractions never claimed to include it.
              For the real numbers there's no such escape: the diagonal number is always a real number, so a list of reals really is missing something.</p></div>
           <h3>You've proved what we promised</h3>
           <ul className="claims done">

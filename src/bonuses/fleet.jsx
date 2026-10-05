@@ -1,5 +1,5 @@
 // Bonus puzzle: fleet
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Say } from "../shared/art";
 import { BonusShell, Confetti, Hints } from "../shared/ui";
 
@@ -37,12 +37,13 @@ export function BonusFleet({ onExit, onFinish }) {
   const [found, setFound] = useState({ old: false, bus3: false, empty: false });
   const [q1, setQ1] = useState(null);
   const [q2, setQ2] = useState(null);
+  const lookups = useRef(0);
   const missionsDone = found.old && found.bus3 && found.empty;
   function look() {
-    const n = parseInt(room, 10);
-    if (!n || n < 1 || n > 10000000) return;
+    const n = Number(room);   // not parseInt, which would read "1e5" as 1 and "2.5" as 2
+    if (!Number.isInteger(n) || n < 1 || n > 10000000) return;
     const r = whoIsIn(n);
-    setLog(l => [{ n, ...r }, ...l].slice(0, 6));
+    setLog(l => [{ id: ++lookups.current, n, ...r }, ...l].slice(0, 6));
     setFound(f => ({ old: f.old || r.kind === "old", bus3: f.bus3 || (r.kind === "bus" && r.b === 3), empty: f.empty || r.kind === "empty" }));
     setRoom("");
   }
@@ -66,7 +67,7 @@ export function BonusFleet({ onExit, onFinish }) {
       </div>
       {log.length > 0 && (
         <ul className="lookups">
-          {log.map((r, i) => <li key={log.length - i} className={r.kind}><b>Room {r.n.toLocaleString()}</b>{r.why}</li>)}
+          {log.map(r => <li key={r.id} className={r.kind}><b>Room {r.n.toLocaleString()}</b>{r.why}</li>)}
         </ul>
       )}
       {!missionsDone && <Hints hints={[
